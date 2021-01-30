@@ -1,0 +1,82 @@
+import numpy as np 
+import tensorflow as tf 
+import pandas as pd
+import matplotlib.pyplot as plt 
+
+
+
+data = pd.read_csv("C:\\Users\\91906\\Desktop\\machine learning\\machine-learning-ex1\\machine-learning-ex1\\ex1\\ex1data1.txt",names = ["data_features","data_labels"])
+x = data.pop("data_features")
+y = data.pop("data_labels")
+
+x = np.array(x)
+y = np.array(y)
+
+n = len(x) # Number of data points 
+
+plt.scatter(x, y) 
+plt.xlabel('x') 
+plt.xlabel('y') 
+plt.title("Training Data") 
+plt.show() 
+
+
+
+
+learning_rate = 0.01
+training_epochs = 1000
+
+X = tf.placeholder("float") 
+Y = tf.placeholder("float")
+
+W = tf.Variable(np.random.randn(), name = "W") 
+b = tf.Variable(np.random.randn(), name = "b") 
+
+
+
+
+y_pred = tf.add(tf.multiply(X, W), b) 
+  
+# Mean Squared Error Cost Function 
+cost = tf.reduce_sum(tf.pow(y_pred-Y, 2)) / (2 * n) 
+  
+# Gradient Descent Optimizer 
+optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost) 
+  
+# Global Variables Initializer 
+init = tf.global_variables_initializer() 
+
+
+with tf.Session() as sess: 
+      
+    # Initializing the Variables 
+    sess.run(init) 
+      
+    # Iterating through all the epochs 
+    for epoch in range(training_epochs): 
+          
+        # Feeding each data point into the optimizer using Feed Dictionary 
+        for (_x, _y) in zip(x, y): 
+            sess.run(optimizer, feed_dict = {X : _x, Y : _y}) 
+          
+        # Displaying the result after every 50 epochs 
+        if (epoch + 1) % 50== 0: 
+            # Calculating the cost a every epoch 
+            c = sess.run(cost, feed_dict = {X : x, Y : y}) 
+            print("Epoch", (epoch + 1), ": cost =", c, "W =", sess.run(W), "b =", sess.run(b)) 
+            
+      
+    # Storing necessary values to be used outside the Session 
+    training_cost = sess.run(cost, feed_dict ={X: x, Y: y}) 
+    weight = sess.run(W) 
+    bias = sess.run(b) 
+    
+    
+predictions = weight * x + bias 
+print("Training cost =", training_cost, "Weight =", weight, "bias =", bias, '\n')    
+
+plt.plot(x, y, 'ro', label ='Original data') 
+plt.plot(x, predictions, label ='Fitted line') 
+plt.title('Linear Regression Result') 
+plt.legend() 
+plt.show() 
